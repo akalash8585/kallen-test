@@ -316,12 +316,44 @@ function val(id) {
   const el = document.getElementById(id);
   return el ? (el.value || '').trim() : '';
 }
+function checkedIndex(name) {
+  const radios = document.getElementsByName(name);
+  let idx = -1;
+  radios.forEach((r, i) => { if (r.checked) idx = i; });
+  return idx;
+}
 
 const CLOSED_QS = [
   ['q1a','1а'], ['q1b','1б'], ['q2a','2а'], ['q2b','2б'],
   ['q3a','3а'], ['q4a','4а'], ['q5a','5а'], ['q6a','6а'],
   ['q7','7'], ['q8','8'], ['q15','15']
 ];
+const SCORE_MAP = {
+  q1a:[0,3,1,1], q1b:[3,1,0,1], q2a:[0,3,1,0], q2b:[3,0,1,1],
+  q3a:[0,3,0,1], q4a:[0,3,1,1], q5a:[0,3,1,1], q6a:[0,0,3,0],
+  q7:[0,3,0,0], q8:[0,1,3,0], q15:[0,3,0,1]
+};
+const CORRECT_SUM = 624000;
+
+function closedScoreAndPercent() {
+  let score = 0;
+  CLOSED_QS.forEach(([name]) => {
+    const idx = checkedIndex(name);
+    if (idx >= 0 && SCORE_MAP[name]) score += SCORE_MAP[name][idx];
+  });
+  const percent = Math.round((score / 33) * 100);
+  return { score, percent };
+}
+function categoryLabel(percent) {
+  if (percent >= 82) return 'Хороший кандидат';
+  if (percent >= 55) return 'Средний кандидат';
+  return 'Не подходит';
+}
+function calcIsCorrect() {
+  const raw = val('q9_sum').replace(/[^\d]/g, '');
+  if (!raw) return null;
+  return Math.abs(parseInt(raw, 10) - CORRECT_SUM) <= 500;
+}
 const OPEN_QS = [
   ['q1c_open','1в'], ['q2c_open','2в'], ['q3b_open','3б'], ['q4b_open','4б'],
   ['q5b_open','5б'], ['q6b_open','6б'], ['q9_sum','9 (расчёт)'],
@@ -357,12 +389,26 @@ function buildReportText() {
   const experience = val('experience');
   const now = new Date().toLocaleString('ru-RU');
 
+  const { score, percent } = closedScoreAndPercent();
+  const category = categoryLabel(percent);
+  const calcOk = calcIsCorrect();
+
   let body = `КАНДИДАТ: ${fio}\nТелефон: ${phone}\nEmail: ${email}\nОпыт: ${experience}\nДата прохождения: ${now}\n\n`;
+
+  body += `===== СВОДНАЯ ПАНЕЛЬ (автоматический расчёт) =====\n\n`;
+  body += `ИТОГОВАЯ КАТЕГОРИЯ: ${category}\n`;
+  body += `Баллы по 11 закрытым вопросам: ${score} из 33 (${percent}%)\n`;
+  body += `Расчёт (вопрос 9): ${calcOk === null ? 'не отвечено' : calcOk ? '✓ верно' : '✗ неверно'} (ответ кандидата: ${val('q9_sum') || '—'}, правильный: 624 000 ₽)\n`;
+  body += `Шкала: 82–100% — хороший кандидат · 55–81% — средний · ниже 55% — не подходит\n`;
+  body += `Открытые вопросы (кейсы и поведенческие) баллами не оцениваются автоматически — читайте текст ниже и оценивайте по критериям из ключа.\n\n`;
+
   body += `===== БЛОК А: КЕЙСЫ (закрытые вопросы) =====\n\n`;
 
   CLOSED_QS.forEach(([name, label]) => {
     const raw = getRadioValue(name);
-    body += `Вопрос ${label}: ${raw || '(не отвечено)'}\n`;
+    const idx = checkedIndex(name);
+    const pts = (idx >= 0 && SCORE_MAP[name]) ? SCORE_MAP[name][idx] : null;
+    body += `Вопрос ${label}: ${raw || '(не отвечено)'}${pts !== null ? ` [балл: ${pts}]` : ''}\n`;
   });
 
   body += `\n===== БЛОК А: ОТКРЫТЫЕ ФРАЗЫ =====\n\n`;
@@ -431,9 +477,11 @@ async function submitTest() {
   showStatus('loading', '⏳ Отправляю результаты, подождите несколько секунд...');
 
   const { body, fio: fioName } = buildReportText();
+  const { percent } = closedScoreAndPercent();
+  const category = categoryLabel(percent);
 
   const formData = new FormData();
-  formData.append('_subject', `Тест кандидата: ${fioName} — Менеджер по продажам Kallen Home`);
+  formData.append('_subject', `[${category}, ${percent}%] Тест кандидата: ${fioName} — Менеджер по продажам Kallen Home`);
   formData.append('_template', 'box');
   formData.append('Кандидат_ФИО', val('fio'));
   formData.append('Телефон', val('phone'));
