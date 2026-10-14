@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kallen Home — Тестирование кандидата на позицию менеджера по продажам</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
+  * { box-sizing: border-box; }
+  body { font-family:'Inter',sans-serif; background:#f5f0e8; color:#262626; margin:0; padding:0; line-height:1.6; }
+  .header { background:#262626; color:#f5f0e8; padding:40px 20px; text-align:center; }
+  .header .monogram { font-family:'Source Serif 4',serif; font-size:42px; letter-spacing:6px; color:#c9a876; margin-bottom:8px; }
+  .header h1 { font-family:'Source Serif 4',serif; font-weight:400; font-size:24px; letter-spacing:1px; margin:6px 0; }
+  .header .slogan { font-size:13px; letter-spacing:3px; text-transform:uppercase; color:#c9a876; }
+  .container { max-width:780px; margin:0 auto; padding:30px 20px 80px; }
+  .intro-box { background:#fff; border-left:4px solid #c9a876; padding:20px 24px; border-radius:6px; margin-bottom:30px; box-shadow:0 2px 8px rgba(0,0,0,0.06); font-size:14px; }
+  .intro-box b { color:#7c5e2e; }
+  .meta-fields { background:#fff; border-radius:8px; padding:24px; margin-bottom:30px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .meta-fields label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; margin-top:14px; color:#44403c; }
+  .meta-fields input { width:100%; padding:10px 12px; border:1px solid #d6d3d1; border-radius:6px; font-size:14px; font-family:'Inter',sans-serif; }
+  .section-title { font-family:'Source Serif 4',serif; font-size:20px; color:#262626; margin:40px 0 10px; padding-bottom:8px; border-bottom:2px solid #c9a876; }
+  .section-desc { font-size:13px; color:#78716c; margin-bottom:18px; font-style:italic; }
+  .case-block { background:#fff; border-radius:10px; padding:0; margin-bottom:26px; box-shadow:0 2px 10px rgba(0,0,0,0.07); overflow:hidden; }
+  .case-intro { background:#262626; color:#f5f0e8; padding:18px 22px; font-size:14px; }
+  .case-intro b { color:#c9a876; }
+  .sub-question { padding:20px 22px; border-top:1px solid #efece6; }
+  .question-number { display:inline-block; background:#262626; color:#c9a876; font-family:'Source Serif 4',serif; font-size:13px; width:26px; height:26px; line-height:26px; text-align:center; border-radius:50%; margin-right:9px; flex-shrink:0; }
+  .question-text { font-size:15px; font-weight:600; margin-bottom:12px; color:#1c1917; display:flex; align-items:flex-start; }
+  .option { display:block; padding:10px 14px; margin-bottom:7px; background:#faf8f5; border:1px solid #e7e4df; border-radius:6px; cursor:pointer; font-size:13.5px; transition:all 0.15s; margin-left:35px; }
+  .option:hover { background:#f0e9dc; border-color:#c9a876; }
+  .option input { margin-right:10px; }
+  textarea { width:100%; min-height:70px; padding:12px; border:1px solid #d6d3d1; border-radius:6px; font-family:'Inter',sans-serif; font-size:14px; resize:vertical; margin-left:0; }
+  .open-wrap { margin-left:35px; }
+  .numeric-row { display:flex; gap:16px; margin-left:35px; flex-wrap:wrap; }
+  .numeric-field { flex:1; min-width:180px; }
+  .numeric-field label { font-size:12px; color:#78716c; display:block; margin-bottom:4px; }
+  .numeric-field input { width:100%; padding:9px 12px; border:1px solid #d6d3d1; border-radius:6px; font-size:14px; }
+  .standalone-card { background:#fff; border-radius:8px; padding:22px 24px; margin-bottom:18px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .ranking-box { background:#faf8f5; border:1px solid #e7e4df; border-radius:6px; padding:14px 16px; margin-bottom:10px; margin-left:35px; display:flex; justify-content:space-between; align-items:center; }
+  .ranking-box span { font-size:14px; }
+  .ranking-box input { width:60px; padding:8px; border:1px solid #d6d3d1; border-radius:6px; text-align:center; }
+  .consent-box { background:#faf8f5; border:1px solid #e7e4df; border-radius:8px; padding:18px 20px; margin-top:26px; font-size:12.5px; color:#44403c; display:flex; align-items:flex-start; gap:10px; }
+  .consent-box input { margin-top:3px; flex-shrink:0; }
+  .honeypot { position:absolute; left:-9999px; opacity:0; height:0; width:0; }
+  .submit-section { text-align:center; margin-top:40px; padding:30px; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+  .submit-btn { background:#262626; color:#c9a876; border:none; padding:16px 48px; font-size:16px; letter-spacing:1px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-weight:600; transition:all 0.2s; }
+  .submit-btn:hover { background:#c9a876; color:#262626; }
+  .submit-btn:disabled { opacity:0.6; cursor:not-allowed; }
+  .progress-note { font-size:12px; color:#78716c; margin-top:12px; }
+  .footer-note { text-align:center; font-size:12px; color:#a8a29e; margin-top:40px; }
+  .timer-badge { display:inline-block; background:rgba(201,168,118,0.15); color:#c9a876; padding:6px 16px; border-radius:20px; font-size:12px; letter-spacing:1px; margin-top:10px; }
+
+  #statusBox { display:none; margin-top:20px; padding:16px 20px; border-radius:8px; font-size:14px; text-align:left; }
+  .status-loading { background:#fef3c7; border-left:4px solid #f59e0b; color:#92400e; }
+  .status-success { background:#dcfce7; border-left:4px solid #059669; color:#166534; }
+  .status-error { background:#fee2e2; border-left:4px solid #dc2626; color:#991b1b; }
+
+  .missing-list { text-align:left; font-size:12px; margin-top:8px; padding-left:18px; }
+
+  .fallback-section { display:none; margin-top:24px; background:#fff; border-radius:10px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.08); border:2px solid #dc2626; text-align:left; }
+  .fallback-section h4 { margin-top:0; color:#991b1b; }
+  #fallbackText { width:100%; min-height:200px; font-family:monospace; font-size:12px; background:#fafafa; border:1px solid #d6d3d1; border-radius:6px; padding:12px; }
+  .fallback-buttons { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
+  .fallback-btn { flex:1; min-width:180px; text-align:center; padding:12px 18px; border-radius:6px; font-weight:600; text-decoration:none; cursor:pointer; font-size:13px; border:none; display:inline-block; }
+  .copy-btn { background:#c9a876; color:#262626; }
+  .mail-btn { background:#262626; color:#c9a876; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="monogram">KH</div>
+  <h1>KALLEN HOME</h1>
+  <div class="slogan">Made with attention</div>
+  <div class="timer-badge">⏱ Тестирование · 18–22 минуты</div>
+</div>
+
+<div class="container">
+
+  <div class="intro-box">
+    <b>Добро пожаловать!</b> Это тестирование немного отличается от стандартных анкет: вместо абстрактных
+    вопросов мы предлагаем реальные рабочие ситуации с развитием событий и вопросы, где важен именно
+    ваш реальный опыт, а не "социально правильный" ответ.<br><br>
+    Отвечайте так, как поступили бы на самом деле. Там, где просим написать точный текст фразы —
+    напишите именно слова, а не описание "что бы сделали". Все поля обязательны к заполнению.
+  </div>
+
+  <form id="testForm" onsubmit="return false;">
+
+    <input type="text" name="_honey" class="honeypot" tabindex="-1" autocomplete="off">
+
+    <div class="meta-fields">
+      <label>Фамилия Имя *</label>
+      <input type="text" id="fio" required>
+      <label>Телефон *</label>
+      <input type="text" id="phone" required>
+      <label>Email *</label>
+      <input type="email" id="email" required>
+      <label>Опыт работы в продажах (лет) и в каких сегментах *</label>
+      <input type="text" id="experience" required>
+    </div>
+
+    <div class="section-title">Блок А · Разветвлённые рабочие кейсы</div>
+    <div class="section-desc">Каждая ситуация развивается по вашим ответам. Отвечайте так, как поступили бы в реальности.</div>
+
+    <div class="case-block">
+      <div class="case-intro"><b>Кейс 1.</b> Вам в WhatsApp написал незнакомый номер: «Добрый день! Скиньте, пожалуйста, цену на диван, 3-местный, ткань, бежевый». Человек не представился, больше ничего не написал.</div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">1а</span>Что вы делаете первым?</div>
+        <label class="option"><input type="radio" name="q1a" value="Сразу отправляю примерную цену на похожую модель"> Сразу отправляю примерную цену на похожую модель</label>
+        <label class="option"><input type="radio" name="q1a" value="Представляюсь, уточняю размеры/категорию ткани/сроки, спрашиваю, как обращаться и откуда узнали о компании"> Представляюсь, уточняю размеры/категорию ткани/сроки, спрашиваю, как обращаться и откуда узнали о компании</label>
+        <label class="option"><input type="radio" name="q1a" value="Прошу номер телефона для звонка, не отвечая в чате"> Прошу номер телефона для звонка, не отвечая в чате</label>
+        <label class="option"><input type="radio" name="q1a" value="Отправляю PDF-каталог всей линейки диванов"> Отправляю PDF-каталог всей линейки диванов</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">1б</span>Клиент отвечает: «Просто скиньте цену, я потом решу» — и больше ничего не поясняет. Что делаете?</div>
+        <label class="option"><input type="radio" name="q1b" value="Называю цену на базовую комплектацию с пометкой, что итоговая цена зависит от выбранных параметров"> Называю цену на базовую комплектацию с пометкой, что итоговая цена зависит от выбранных параметров</label>
+        <label class="option"><input type="radio" name="q1b" value="Продолжаю настаивать на уточнении деталей, отказываясь называть цену без них"> Продолжаю настаивать на уточнении деталей, отказываясь называть цену без них</label>
+        <label class="option"><input type="radio" name="q1b" value="Говорю, что цену можно узнать только при визите в шоурум"> Говорю, что цену можно узнать только при визите в шоурум</label>
+        <label class="option"><input type="radio" name="q1b" value="Называю цену на максимальную комплектацию — потом будет проще «продать вниз»"> Называю цену на максимальную комплектацию — потом будет проще «продать вниз»</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">1в</span>Напишите ТОЧНЫЙ текст сообщения, которое вы отправите клиенту в ситуации 1б (не описание действий — реальный текст):</div>
+        <div class="open-wrap"><textarea id="q1c_open" required></textarea></div>
+      </div>
+    </div>
+
+    <div class="case-block">
+      <div class="case-intro"><b>Кейс 2.</b> Сделка на 1 400 000 ₽. По регламенту компании вы можете самостоятельно согласовать скидку не более 5%, скидки выше требуют одобрения руководителя. Клиент просит скидку 25% и говорит: «Решайте сейчас, через час у меня встреча с другим поставщиком — не договоримся, ухожу».</div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">2а</span>Что делаете?</div>
+        <label class="option"><input type="radio" name="q2a" value="Соглашаюсь на 25%, чтобы не терять клиента прямо сейчас"> Соглашаюсь на 25%, чтобы не терять клиента прямо сейчас</label>
+        <label class="option"><input type="radio" name="q2a" value="Говорю, что 25% дать не могу сам, прошу 10 минут и звоню руководителю для согласования"> Говорю, что 25% дать не могу сам, прошу 10 минут и звоню руководителю для согласования</label>
+        <label class="option"><input type="radio" name="q2a" value="Сразу отказываю, говорю «у нас скидок нет»"> Сразу отказываю, говорю «у нас скидок нет»</label>
+        <label class="option"><input type="radio" name="q2a" value="Обещаю 25%, а после скажу руководителю, что «клиент вынудил»"> Обещаю 25%, а после скажу руководителю, что «клиент вынудил»</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">2б</span>Руководитель не отвечает на звонок эти 10 минут, а время у клиента истекает. Что делаете?</div>
+        <label class="option"><input type="radio" name="q2b" value="Даю свои максимальные полномочия (5%), честно объясняю, что больше не могу решить сам, предлагаю зафиксировать бронь на 24 часа для согласования большей скидки"> Даю свои максимальные полномочия (5%), честно объясняю, что больше не могу решить сам, предлагаю зафиксировать бронь на 24 часа для согласования большей скидки</label>
+        <label class="option"><input type="radio" name="q2b" value="Даю 25% — ситуация вынужденная, раз руководитель недоступен"> Даю 25% — ситуация вынужденная, раз руководитель недоступен</label>
+        <label class="option"><input type="radio" name="q2b" value="Говорю клиенту «подождите, я пока ничего не могу решить» без конкретики"> Говорю клиенту «подождите, я пока ничего не могу решить» без конкретики</label>
+        <label class="option"><input type="radio" name="q2b" value="Отпускаю клиента, не предлагая никакого решения"> Отпускаю клиента, не предлагая никакого решения</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">2в</span>Напишите ТОЧНУЮ фразу, которую скажете клиенту в ситуации 2б:</div>
+        <div class="open-wrap"><textarea id="q2c_open" required></textarea></div>
+      </div>
+    </div>
+
+    <div class="case-block">
+      <div class="case-intro"><b>Кейс 3.</b> Проект полностью оплачен клиентом (100%). При финальной проверке перед отгрузкой вы обнаружили: производство по ошибке не изготовило 2 из 8 позиций спецификации (не хватает кресел к дивану). Остальные 6 позиций готовы и могут быть отгружены в срок.</div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">3а</span>Что делаете первым?</div>
+        <label class="option"><input type="radio" name="q3a" value="Отгружаю готовые 6 позиций молча в срок, кресла довезём позже — может, клиент не сразу заметит"> Отгружаю готовые 6 позиций молча в срок, кресла довезём позже — может, клиент не сразу заметит</label>
+        <label class="option"><input type="radio" name="q3a" value="Сразу звоню клиенту, сообщаю о ситуации ДО отгрузки, предлагаю варианты решения"> Сразу звоню клиенту, сообщаю о ситуации ДО отгрузки, предлагаю варианты решения</label>
+        <label class="option"><input type="radio" name="q3a" value="Жду, пока клиент сам заметит нехватку при получении"> Жду, пока клиент сам заметит нехватку при получении</label>
+        <label class="option"><input type="radio" name="q3a" value="Пишу клиенту сообщение в мессенджер без звонка с фактом проблемы"> Пишу клиенту сообщение в мессенджер без звонка с фактом проблемы</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">3б</span>Опишите минимум 2 конкретных варианта решения, которые вы предложите клиенту в этом разговоре:</div>
+        <div class="open-wrap"><textarea id="q3b_open" required></textarea></div>
+      </div>
+    </div>
+
+    <div class="case-block">
+      <div class="case-intro"><b>Кейс 4.</b> Клиент был на встрече в шоуруме, выглядел заинтересованным, сказал «мне нужно подумать, я напишу». Прошло 12 дней — тишина.</div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">4а</span>Что делаете?</div>
+        <label class="option"><input type="radio" name="q4a" value="Ничего, жду — клиент сказал, что напишет сам"> Ничего, жду — клиент сказал, что напишет сам</label>
+        <label class="option"><input type="radio" name="q4a" value="Пишу/звоню с вежливым напоминанием и конкретным инфоповодом (например, уточнение по срокам или наличию)"> Пишу/звоню с вежливым напоминанием и конкретным инфоповодом (например, уточнение по срокам или наличию)</label>
+        <label class="option"><input type="radio" name="q4a" value="Пишу каждый день «ну что, надумали?»"> Пишу каждый день «ну что, надумали?»</label>
+        <label class="option"><input type="radio" name="q4a" value="Передаю клиента в общую базу для холодных обзвонов"> Передаю клиента в общую базу для холодных обзвонов</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">4б</span>Напишите точный текст сообщения для ситуации 4а:</div>
+        <div class="open-wrap"><textarea id="q4b_open" required></textarea></div>
+      </div>
+    </div>
+
+    <div class="case-block">
+      <div class="case-intro"><b>Кейс 5.</b> Проект в производстве, готовность 40%. Клиент просит заменить согласованную ткань на более дорогую (разница в стоимости материала и перекроя — около 35 000 ₽ на весь заказ) и говорит: «Это же не фатально для вас, давайте доплату сделаем символической — пусть будет 5 000 ₽, всё равно сделка крупная».</div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">5а</span>Что делаете?</div>
+        <label class="option"><input type="radio" name="q5a" value="Соглашаюсь на 5 000 ₽, чтобы клиент остался доволен и не возникло конфликта"> Соглашаюсь на 5 000 ₽, чтобы клиент остался доволен и не возникло конфликта</label>
+        <label class="option"><input type="radio" name="q5a" value="Объясняю, что доплата должна отражать реальную разницу в материале и работе, называю точную сумму"> Объясняю, что доплата должна отражать реальную разницу в материале и работе, называю точную сумму</label>
+        <label class="option"><input type="radio" name="q5a" value="Отказываю менять ткань вообще, раз производство уже начато"> Отказываю менять ткань вообще, раз производство уже начато</label>
+        <label class="option"><input type="radio" name="q5a" value="Говорю «спрошу у руководителя» и тяну с ответом несколько дней без объяснений клиенту"> Говорю «спрошу у руководителя» и тяну с ответом несколько дней без объяснений клиенту</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">5б</span>Напишите ТОЧНУЮ фразу/текст, которым вы сообщите клиенту реальную сумму доплаты:</div>
+        <div class="open-wrap"><textarea id="q5b_open" required></textarea></div>
+      </div>
+    </div>
+
+    <div class="case-block">
+      <div class="case-intro"><b>Кейс 6.</b> Клиент, которому вы продали диван два месяца назад, оставил эмоциональный негативный отзыв на Яндекс.Картах из-за задержки доставки на 3 дня (при том, что изделие в итоге доставлено целым и качественным). В отзыве есть явные преувеличения: «Никогда больше не куплю, это обман, деньги на ветер» — хотя по факту всё оплачено и получено, просто с небольшим опозданием.</div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">6а</span>Что делаете?</div>
+        <label class="option"><input type="radio" name="q6a" value="Игнорирую — это не моя зона ответственности, пусть разбирается руководитель или маркетолог"> Игнорирую — это не моя зона ответственности, пусть разбирается руководитель или маркетолог</label>
+        <label class="option"><input type="radio" name="q6a" value="Отвечаю публично в комментариях под отзывом, подробно доказывая клиенту, что он не прав и преувеличивает"> Отвечаю публично в комментариях под отзывом, подробно доказывая клиенту, что он не прав и преувеличивает</label>
+        <label class="option"><input type="radio" name="q6a" value="Связываюсь с клиентом лично, стараюсь урегулировать ситуацию, и только после решения вопроса вежливо прошу рассмотреть возможность обновить отзыв"> Связываюсь с клиентом лично, стараюсь урегулировать ситуацию, и только после решения вопроса вежливо прошу рассмотреть возможность обновить отзыв</label>
+        <label class="option"><input type="radio" name="q6a" value="Прошу коллег и знакомых оставить побольше положительных отзывов, чтобы «перекрыть» негативный"> Прошу коллег и знакомых оставить побольше положительных отзывов, чтобы «перекрыть» негативный</label>
+      </div>
+      <div class="sub-question">
+        <div class="question-text"><span class="question-number">6б</span>Напишите точный текст первого личного сообщения клиенту после этого отзыва:</div>
+        <div class="open-wrap"><textarea id="q6b_open" required></textarea></div>
+      </div>
+    </div>
+
+    <div class="section-title">Блок Б · Профессиональная экспертиза</div>
+    <div class="section-desc">Проверка реального знания продукта и расчётов, с которыми вы будете работать ежедневно.</div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">7</span>Что означает термин «кромка ПВХ» в мебельном производстве?</div>
+      <label class="option" style="margin-left:0"><input type="radio" name="q7" value="Тип обивочной ткани"> Тип обивочной ткани</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q7" value="Пластиковая окантовка торцов деталей из ЛДСП/МДФ для защиты от влаги и сколов"> Пластиковая окантовка торцов деталей из ЛДСП/МДФ для защиты от влаги и сколов</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q7" value="Клеевой состав для сборки каркаса"> Клеевой состав для сборки каркаса</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q7" value="Разновидность поролона"> Разновидность поролона</label>
+    </div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">8</span>Какой средний срок производства нестандартного дизайнерского дивана в премиальном сегменте (от утверждения чертежей до отгрузки)?</div>
+      <label class="option" style="margin-left:0"><input type="radio" name="q8" value="1-2 недели"> 1–2 недели</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q8" value="3-4 недели"> 3–4 недели</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q8" value="6-10 недель"> 6–10 недель</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q8" value="Более 6 месяцев"> Более 6 месяцев</label>
+    </div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">9</span>Клиент заказал мебель на сумму 850 000 ₽ и внёс предоплату 40%. После этого согласована дополнительная позиция на 120 000 ₽ со скидкой 5%. Посчитайте итоговую сумму доплаты при получении товара.</div>
+      <div class="numeric-row">
+        <div class="numeric-field"><label>Сумма доплаты, ₽</label><input type="text" id="q9_sum" required></div>
+      </div>
+    </div>
+
+    <div class="section-title">Блок В · Поведенческие вопросы (требуется конкретика)</div>
+    <div class="section-desc">Пишите конкретные детали: даты, суммы, точные слова. Общие фразы без примеров не засчитываются.</div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">10</span>Опишите последний раз, когда вы ОТКАЗАЛИСЬ от сделки, выгодной лично вам (премия/бонус), потому что она была невыгодна клиенту или компании в долгосрочной перспективе. Когда это было? Что именно вы сказали?</div>
+      <textarea id="q10open" required></textarea>
+    </div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">11</span>Напишите ТОЧНЫЙ текст — что вы говорите клиенту в первые 30 секунд холодного звонка по заявке с сайта (сам текст, а не описание подхода):</div>
+      <textarea id="q11open" required></textarea>
+    </div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">12</span>Расскажите о клиенте, который остался недоволен лично ВАМИ (не продуктом, не производством — именно вашей работой, вашим подходом). Что произошло и что вы сделали после?</div>
+      <textarea id="q12open" required></textarea>
+    </div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">13</span>Если бы ваш предыдущий руководитель писал характеристику для нового работодателя, какую ОДНУ конкретную вещь он бы покритиковал в вашей работе?</div>
+      <textarea id="q13open" required></textarea>
+    </div>
+
+    <div class="section-title">Блок Г · Приоритеты</div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">14</span>Расставьте по важности для вас цифрами от 1 (самое важное) до 4 (наименее важное) — каждое число используется только один раз:</div>
+      <div class="ranking-box"><span>Объём продаж (количество сделок)</span><input type="text" id="q14_a" maxlength="1" inputmode="numeric"></div>
+      <div class="ranking-box"><span>Маржинальность каждой сделки</span><input type="text" id="q14_b" maxlength="1" inputmode="numeric"></div>
+      <div class="ranking-box"><span>Долгосрочные отношения с клиентом</span><input type="text" id="q14_c" maxlength="1" inputmode="numeric"></div>
+      <div class="ranking-box"><span>Скорость закрытия сделки</span><input type="text" id="q14_d" maxlength="1" inputmode="numeric"></div>
+    </div>
+
+    <div class="standalone-card">
+      <div class="question-text"><span class="question-number">15</span>Конец месяца, план почти не выполнен. Есть сделка: клиент просит скидку, которая сделает сделку фактически нулевой по марже для компании, но её закрытие выполнит ваш личный план. Что делаете?</div>
+      <label class="option" style="margin-left:0"><input type="radio" name="q15" value="Закрываю сделку на этих условиях — план важнее"> Закрываю сделку на этих условиях — план важнее</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q15" value="Отказываюсь от такой скидки, даже если не выполню план в этом месяце"> Отказываюсь от такой скидки, даже если не выполню план в этом месяце</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q15" value="Закрываю, а потом объясню руководителю, что «клиент настаивал»"> Закрываю, а потом объясню руководителю, что «клиент настаивал»</label>
+      <label class="option" style="margin-left:0"><input type="radio" name="q15" value="Прошу руководителя разрешить скидку «ради плана»"> Прошу руководителя разрешить скидку «ради плана»</label>
+    </div>
+
+    <div class="consent-box">
+      <input type="checkbox" id="consent" required>
+      <label for="consent">Я согласен(на) на обработку персональных данных, указанных в этой анкете, в целях рассмотрения моей кандидатуры компанией Kallen Home. *</label>
+    </div>
+
+    <div class="submit-section">
+      <button type="button" id="submitBtn" class="submit-btn" onclick="submitTest()">Отправить результаты</button>
+      <div class="progress-note">При нажатии появится статус отправки прямо здесь на странице.</div>
+      <div id="statusBox"></div>
+
+      <div class="fallback-section" id="fallbackSection">
+        <h4>⚠️ Автоматическая отправка не сработала — отправим вручную</h4>
+        <p style="font-size:13px; color:#44403c;">Не переживайте, все ваши ответы сохранены ниже. Выполните 3 простых шага:</p>
+        <ol style="font-size:13px;">
+          <li>Нажмите «Скопировать результаты»</li>
+          <li>Нажмите «Открыть почту»</li>
+          <li>Вставьте текст в письмо (Ctrl+V) и отправьте</li>
+        </ol>
+        <textarea id="fallbackText" readonly></textarea>
+        <div class="fallback-buttons">
+          <button type="button" class="fallback-btn copy-btn" onclick="copyFallback()">📋 Скопировать результаты</button>
+          <a id="fallbackMailBtn" class="fallback-btn mail-btn" href="#">✉️ Открыть почту</a>
+        </div>
+      </div>
+    </div>
+
+  </form>
+
+</div>
+
+<div class="footer-note">KALLEN HOME · Тестирование кандидатов на позицию менеджера по продажам · Made with attention</div>
+
+<script>
+function getRadioValue(name) {
+  const radios = document.getElementsByName(name);
+  for (const r of radios) { if (r.checked) return r.value; }
+  return null;
+}
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? (el.value || '').trim() : '';
+}
+
+const CLOSED_QS = [
+  ['q1a','1а'], ['q1b','1б'], ['q2a','2а'], ['q2b','2б'],
+  ['q3a','3а'], ['q4a','4а'], ['q5a','5а'], ['q6a','6а'],
+  ['q7','7'], ['q8','8'], ['q15','15']
+];
+const OPEN_QS = [
+  ['q1c_open','1в'], ['q2c_open','2в'], ['q3b_open','3б'], ['q4b_open','4б'],
+  ['q5b_open','5б'], ['q6b_open','6б'], ['q9_sum','9 (расчёт)'],
+  ['q10open','10'], ['q11open','11'], ['q12open','12'], ['q13open','13']
+];
+
+function findMissing() {
+  const missing = [];
+  if (!val('fio')) missing.push('Фамилия Имя');
+  if (!val('phone')) missing.push('Телефон');
+  if (!val('email')) missing.push('Email');
+  if (!val('experience')) missing.push('Опыт работы');
+  CLOSED_QS.forEach(([name, label]) => { if (!getRadioValue(name)) missing.push('Вопрос ' + label); });
+  OPEN_QS.forEach(([id, label]) => { if (!val(id)) missing.push('Вопрос ' + label); });
+  ['q14_a','q14_b','q14_c','q14_d'].forEach((id, i) => {
+    if (!val(id)) missing.push('Вопрос 14 (' + (i+1) + '-я строка)');
+  });
+  if (!document.getElementById('consent').checked) missing.push('Согласие на обработку персональных данных');
+  return missing;
+}
+
+function rankingIsValid() {
+  const vals = ['q14_a','q14_b','q14_c','q14_d'].map(id => val(id));
+  if (vals.some(v => v === '')) return true; // caught by findMissing already
+  const nums = vals.map(v => parseInt(v, 10)).sort();
+  return JSON.stringify(nums) === JSON.stringify([1,2,3,4]);
+}
+
+function buildReportText() {
+  const fio = val('fio');
+  const phone = val('phone');
+  const email = val('email');
+  const experience = val('experience');
+  const now = new Date().toLocaleString('ru-RU');
+
+  let body = `КАНДИДАТ: ${fio}\nТелефон: ${phone}\nEmail: ${email}\nОпыт: ${experience}\nДата прохождения: ${now}\n\n`;
+  body += `===== БЛОК А: КЕЙСЫ (закрытые вопросы) =====\n\n`;
+
+  CLOSED_QS.forEach(([name, label]) => {
+    const raw = getRadioValue(name);
+    body += `Вопрос ${label}: ${raw || '(не отвечено)'}\n`;
+  });
+
+  body += `\n===== БЛОК А: ОТКРЫТЫЕ ФРАЗЫ =====\n\n`;
+  [['q1c_open','1в'],['q2c_open','2в'],['q3b_open','3б'],['q4b_open','4б'],['q5b_open','5б'],['q6b_open','6б']].forEach(([id,label]) => {
+    body += `Вопрос ${label}:\n${val(id) || '(не отвечено)'}\n\n`;
+  });
+
+  body += `===== БЛОК Б: РАСЧЁТ =====\n\n`;
+  body += `Вопрос 9 — Сумма доплаты: ${val('q9_sum') || '(не отвечено)'}\n\n`;
+
+  body += `===== БЛОК В: ПОВЕДЕНЧЕСКИЕ =====\n\n`;
+  [['q10open','10'],['q11open','11'],['q12open','12'],['q13open','13']].forEach(([id,label]) => {
+    body += `Вопрос ${label}:\n${val(id) || '(не отвечено)'}\n\n`;
+  });
+
+  body += `===== БЛОК Г: ПРИОРИТЕТЫ =====\n\n`;
+  body += `Объём: ${val('q14_a')} | Маржа: ${val('q14_b')} | Отношения: ${val('q14_c')} | Скорость: ${val('q14_d')}\n\n`;
+
+  body += `===== ПРОВЕРКА =====\n`;
+  body += `Оцените ответы по ключевому файлу (у рекрутера, не публикуется кандидату).\n`;
+
+  return { body, fio };
+}
+
+function showStatus(type, html) {
+  const box = document.getElementById('statusBox');
+  box.className = '';
+  box.classList.add(type === 'loading' ? 'status-loading' : type === 'success' ? 'status-success' : 'status-error');
+  box.style.display = 'block';
+  box.innerHTML = html;
+}
+
+function showFallback(body, fio) {
+  document.getElementById('fallbackSection').style.display = 'block';
+  document.getElementById('fallbackText').value = body;
+  const subject = encodeURIComponent(`Тест кандидата: ${fio} — Менеджер по продажам`);
+  const shortMailBody = encodeURIComponent('Результаты теста скопированы в буфер обмена. Вставьте их сюда (Ctrl+V) перед отправкой.');
+  document.getElementById('fallbackMailBtn').setAttribute('href', `mailto:kalash8585@mail.ru?subject=${subject}&body=${shortMailBody}`);
+  document.getElementById('fallbackSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyFallback() {
+  const ta = document.getElementById('fallbackText');
+  ta.focus(); ta.select(); ta.setSelectionRange(0, 999999);
+  try { document.execCommand('copy'); } catch(e) {}
+  if (navigator.clipboard) { navigator.clipboard.writeText(ta.value).catch(()=>{}); }
+  alert('Текст скопирован! Теперь нажмите "Открыть почту" и вставьте его (Ctrl+V).');
+}
+
+async function submitTest() {
+  const missing = findMissing();
+  if (missing.length) {
+    alert('Пожалуйста, заполните все поля перед отправкой. Не заполнено:\n\n' + missing.join('\n'));
+    return;
+  }
+  if (!rankingIsValid()) {
+    alert('В вопросе 14 используйте каждую цифру от 1 до 4 ровно один раз.');
+    return;
+  }
+  if (document.getElementById('_honey') && document.getElementById('_honey').value) {
+    return; // bot trap
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  showStatus('loading', '⏳ Отправляю результаты, подождите несколько секунд...');
+
+  const { body, fio: fioName } = buildReportText();
+
+  const formData = new FormData();
+  formData.append('_subject', `Тест кандидата: ${fioName} — Менеджер по продажам Kallen Home`);
+  formData.append('_template', 'box');
+  formData.append('Кандидат_ФИО', val('fio'));
+  formData.append('Телефон', val('phone'));
+  formData.append('Email_кандидата', val('email'));
+  formData.append('Полный_отчёт', body);
+
+  try {
+    const response = await fetch('https://formsubmit.co/ajax/kalash8585@mail.ru', {
+      method: 'POST',
+      headers: { 'Accept': 'application/json' },
+      body: formData
+    });
+
+    if (response.ok) {
+      showStatus('success', '✅ <b>Результаты успешно отправлены!</b> Спасибо за прохождение теста. Мы свяжемся с вами в ближайшее время.');
+    } else {
+      throw new Error('Сервер вернул статус ' + response.status);
+    }
+  } catch (err) {
+    showStatus('error', `🔴 <b>Автоматическая отправка не удалась</b> (причина: ${err.message}). Не переживайте — ваши ответы не потеряны, воспользуйтесь запасным способом ниже.`);
+    showFallback(body, fioName);
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+
+</body>
+</html>
