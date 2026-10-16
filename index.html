@@ -17,7 +17,7 @@
   .intro-box b { color:#7c5e2e; }
   .meta-fields { background:#fff; border-radius:8px; padding:24px; margin-bottom:30px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
   .meta-fields label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; margin-top:14px; color:#44403c; }
-  .meta-fields input { width:100%; padding:10px 12px; border:1px solid #d6d3d1; border-radius:6px; font-size:14px; font-family:'Inter',sans-serif; }
+  .meta-fields input { width:100%; padding:10px 12px; border:1px solid #d6d3d1; border-radius:6px; font-size:16px; font-family:'Inter',sans-serif; }
   .section-title { font-family:'Source Serif 4',serif; font-size:20px; color:#262626; margin:40px 0 10px; padding-bottom:8px; border-bottom:2px solid #c9a876; }
   .section-desc { font-size:13px; color:#78716c; margin-bottom:18px; font-style:italic; }
   .case-block { background:#fff; border-radius:10px; padding:0; margin-bottom:26px; box-shadow:0 2px 10px rgba(0,0,0,0.07); overflow:hidden; }
@@ -29,16 +29,16 @@
   .option { display:block; padding:10px 14px; margin-bottom:7px; background:#faf8f5; border:1px solid #e7e4df; border-radius:6px; cursor:pointer; font-size:13.5px; transition:all 0.15s; margin-left:35px; }
   .option:hover { background:#f0e9dc; border-color:#c9a876; }
   .option input { margin-right:10px; }
-  textarea { width:100%; min-height:70px; padding:12px; border:1px solid #d6d3d1; border-radius:6px; font-family:'Inter',sans-serif; font-size:14px; resize:vertical; margin-left:0; }
+  textarea { width:100%; min-height:70px; padding:12px; border:1px solid #d6d3d1; border-radius:6px; font-family:'Inter',sans-serif; font-size:16px; resize:vertical; margin-left:0; }
   .open-wrap { margin-left:35px; }
   .numeric-row { display:flex; gap:16px; margin-left:35px; flex-wrap:wrap; }
   .numeric-field { flex:1; min-width:180px; }
   .numeric-field label { font-size:12px; color:#78716c; display:block; margin-bottom:4px; }
-  .numeric-field input { width:100%; padding:9px 12px; border:1px solid #d6d3d1; border-radius:6px; font-size:14px; }
+  .numeric-field input { width:100%; padding:9px 12px; border:1px solid #d6d3d1; border-radius:6px; font-size:16px; }
   .standalone-card { background:#fff; border-radius:8px; padding:22px 24px; margin-bottom:18px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
   .ranking-box { background:#faf8f5; border:1px solid #e7e4df; border-radius:6px; padding:14px 16px; margin-bottom:10px; margin-left:35px; display:flex; justify-content:space-between; align-items:center; }
   .ranking-box span { font-size:14px; }
-  .ranking-box input { width:60px; padding:8px; border:1px solid #d6d3d1; border-radius:6px; text-align:center; }
+  .ranking-box input { width:60px; padding:8px; border:1px solid #d6d3d1; border-radius:6px; text-align:center; font-size:16px; }
   .consent-box { background:#faf8f5; border:1px solid #e7e4df; border-radius:8px; padding:18px 20px; margin-top:26px; font-size:12.5px; color:#44403c; display:flex; align-items:flex-start; gap:10px; }
   .consent-box input { margin-top:3px; flex-shrink:0; }
   .honeypot { position:absolute; left:-9999px; opacity:0; height:0; width:0; }
@@ -87,7 +87,7 @@
 
   <form id="testForm" onsubmit="return false;">
 
-    <input type="text" name="_honey" class="honeypot" tabindex="-1" autocomplete="off">
+    <input type="text" id="_honey" name="_honey" class="honeypot" tabindex="-1" autocomplete="off">
 
     <div class="meta-fields">
       <label>Фамилия Имя *</label>
@@ -443,7 +443,28 @@ function buildReportText() {
   body += `===== БЛОК Г: ПРИОРИТЕТЫ =====\n\n`;
   body += `Объём: ${val('q15_a')} | Маржа: ${val('q15_b')} | Отношения: ${val('q15_c')} | Скорость: ${val('q15_d')} | Новые партнёрства: ${val('q15_e')}\n\n`;
 
-  return { body, fio };
+  // "Чистая" версия без баллов и категории — её может увидеть сам кандидат
+  // в запасном сценарии (копирование в письмо), поэтому ключ ответов сюда не попадает.
+  let cleanBody = `КАНДИДАТ: ${fio}\nТелефон: ${phone}\nEmail: ${email}\nОпыт: ${experience}\nДата прохождения: ${now}\n\n`;
+  cleanBody += `===== БЛОК А: КЕЙСЫ (закрытые вопросы) =====\n\n`;
+  CLOSED_QS.forEach(([name, label]) => {
+    const raw = getRadioValue(name);
+    cleanBody += `Вопрос ${label}: ${raw || '(не отвечено)'}\n`;
+  });
+  cleanBody += `\n===== БЛОК А: ОТКРЫТЫЕ ФРАЗЫ =====\n\n`;
+  [['q1c_open','1в'],['q2c_open','2в'],['q3b_open','3б'],['q4b_open','4б'],['q5b_open','5б'],['q6b_open','6б']].forEach(([id,label]) => {
+    cleanBody += `Вопрос ${label}:\n${val(id) || '(не отвечено)'}\n\n`;
+  });
+  cleanBody += `===== БЛОК Б: РАСЧЁТ =====\n\n`;
+  cleanBody += `Вопрос 9 — Сумма доплаты: ${val('q9_sum') || '(не отвечено)'}\n\n`;
+  cleanBody += `===== БЛОК В: ПОВЕДЕНЧЕСКИЕ =====\n\n`;
+  [['q10open','10'],['q11open','11'],['q12open','12'],['q13open','13'],['q14open_volume','14 (объём холодных контактов)']].forEach(([id,label]) => {
+    cleanBody += `Вопрос ${label}:\n${val(id) || '(не отвечено)'}\n\n`;
+  });
+  cleanBody += `===== БЛОК Г: ПРИОРИТЕТЫ =====\n\n`;
+  cleanBody += `Объём: ${val('q15_a')} | Маржа: ${val('q15_b')} | Отношения: ${val('q15_c')} | Скорость: ${val('q15_d')} | Новые партнёрства: ${val('q15_e')}\n\n`;
+
+  return { body, cleanBody, fio };
 }
 
 function showStatus(type, html) {
@@ -489,7 +510,7 @@ async function submitTest() {
   btn.disabled = true;
   showStatus('loading', '⏳ Отправляю результаты, подождите несколько секунд...');
 
-  const { body, fio: fioName } = buildReportText();
+  const { body, cleanBody, fio: fioName } = buildReportText();
   const { percent } = closedScoreAndPercent();
   const category = categoryLabel(percent);
 
@@ -501,21 +522,31 @@ async function submitTest() {
   formData.append('Email_кандидата', val('email'));
   formData.append('Полный_отчёт', body);
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+
   try {
     const response = await fetch('https://formsubmit.co/ajax/kalash8585@mail.ru', {
       method: 'POST',
       headers: { 'Accept': 'application/json' },
-      body: formData
+      body: formData,
+      signal: controller.signal
     });
+    clearTimeout(timeoutId);
 
-    if (response.ok) {
+    let data = null;
+    try { data = await response.json(); } catch (parseErr) { /* не JSON — считаем сбоем ниже */ }
+
+    if (response.ok && data && data.success === 'true') {
       showStatus('success', '✅ <b>Результаты успешно отправлены!</b> Спасибо за прохождение теста. Мы свяжемся с вами в ближайшее время.');
     } else {
-      throw new Error('Сервер вернул статус ' + response.status);
+      throw new Error('Сервер не подтвердил отправку (статус ' + response.status + ')');
     }
   } catch (err) {
-    showStatus('error', `🔴 <b>Автоматическая отправка не удалась</b> (причина: ${err.message}). Не переживайте — ваши ответы не потеряны, воспользуйтесь запасным способом ниже.`);
-    showFallback(body, fioName);
+    clearTimeout(timeoutId);
+    const reason = err.name === 'AbortError' ? 'превышено время ожидания (слабый интернет)' : err.message;
+    showStatus('error', `🔴 <b>Автоматическая отправка не удалась</b> (причина: ${reason}). Не переживайте — ваши ответы не потеряны, воспользуйтесь запасным способом ниже.`);
+    showFallback(cleanBody, fioName);
   } finally {
     btn.disabled = false;
   }
