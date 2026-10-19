@@ -57,13 +57,20 @@
 
   .missing-list { text-align:left; font-size:12px; margin-top:8px; padding-left:18px; }
 
-  .fallback-section { display:none; margin-top:24px; background:#fff; border-radius:10px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.08); border:2px solid #dc2626; text-align:left; }
-  .fallback-section h4 { margin-top:0; color:#991b1b; }
+  .fallback-toggle { display:block; margin:16px auto 0; background:none; border:none; color:#78716c; font-size:12.5px; text-decoration:underline; cursor:pointer; font-family:'Inter',sans-serif; }
+  .fallback-toggle:hover { color:#262626; }
+  .fallback-section { display:none; margin-top:16px; background:#fff; border-radius:10px; padding:24px; box-shadow:0 2px 10px rgba(0,0,0,0.08); border:2px solid #c9a876; text-align:left; }
+  .fallback-section.open { display:block; }
+  .fallback-section h4 { margin-top:0; color:#262626; }
   #fallbackText { width:100%; min-height:200px; font-family:monospace; font-size:12px; background:#fafafa; border:1px solid #d6d3d1; border-radius:6px; padding:12px; }
   .fallback-buttons { display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; }
   .fallback-btn { flex:1; min-width:180px; text-align:center; padding:12px 18px; border-radius:6px; font-weight:600; text-decoration:none; cursor:pointer; font-size:13px; border:none; display:inline-block; }
   .copy-btn { background:#c9a876; color:#262626; }
   .mail-btn { background:#262626; color:#c9a876; }
+
+  .thankyou-panel { display:none; text-align:center; padding:50px 30px; background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.06); margin-top:30px; }
+  .thankyou-panel h2 { font-family:'Source Serif 4',serif; font-weight:400; font-size:22px; color:#262626; margin:10px 0; }
+  .thankyou-panel p { color:#57534e; font-size:14px; max-width:420px; margin:0 auto; }
 </style>
 </head>
 <body>
@@ -294,12 +301,14 @@
 
     <div class="submit-section">
       <button type="button" id="submitBtn" class="submit-btn" onclick="submitTest()">Отправить результаты</button>
-      <div class="progress-note">При нажатии появится статус отправки прямо здесь на странице.</div>
+      <div class="progress-note">После нажатия страница на секунду перезагрузится — это нормально, так результаты надёжно уходят даже при нестабильном мобильном интернете.</div>
       <div id="statusBox"></div>
 
+      <button type="button" class="fallback-toggle" id="fallbackToggleBtn" onclick="toggleFallback()">Возникла проблема с отправкой? Отправить вручную</button>
+
       <div class="fallback-section" id="fallbackSection">
-        <h4>⚠️ Автоматическая отправка не сработала — отправим вручную</h4>
-        <p style="font-size:13px; color:#44403c;">Не переживайте, все ваши ответы сохранены ниже. Выполните 3 простых шага:</p>
+        <h4>✉️ Резервный способ отправки</h4>
+        <p style="font-size:13px; color:#44403c;">Если кнопка выше не сработала, все ваши ответы сохранены ниже. Выполните 3 простых шага:</p>
         <ol style="font-size:13px;">
           <li>Нажмите «Скопировать результаты»</li>
           <li>Нажмите «Открыть почту»</li>
@@ -314,6 +323,12 @@
     </div>
 
   </form>
+
+  <div class="thankyou-panel" id="thankYouPanel">
+    <div class="monogram" style="color:#c9a876; font-family:'Source Serif 4',serif; font-size:32px; letter-spacing:4px;">✓</div>
+    <h2>Результаты отправлены!</h2>
+    <p>Спасибо, что прошли тестирование. Мы получили ваши ответы и свяжемся с вами в ближайшее время.</p>
+  </div>
 
 </div>
 
@@ -475,13 +490,19 @@ function showStatus(type, html) {
   box.innerHTML = html;
 }
 
-function showFallback(body, fio) {
-  document.getElementById('fallbackSection').style.display = 'block';
-  document.getElementById('fallbackText').value = body;
-  const subject = encodeURIComponent(`Тест кандидата: ${fio} — Менеджер по продажам`);
-  const shortMailBody = encodeURIComponent('Результаты теста скопированы в буфер обмена. Вставьте их сюда (Ctrl+V) перед отправкой.');
-  document.getElementById('fallbackMailBtn').setAttribute('href', `mailto:kalash8585@mail.ru?subject=${subject}&body=${shortMailBody}`);
-  document.getElementById('fallbackSection').scrollIntoView({ behavior: 'smooth' });
+function toggleFallback(forceOpen) {
+  const section = document.getElementById('fallbackSection');
+  const isOpen = section.classList.contains('open');
+  const shouldOpen = forceOpen !== undefined ? forceOpen : !isOpen;
+  section.classList.toggle('open', shouldOpen);
+  if (shouldOpen) {
+    const { cleanBody, fio } = buildReportText();
+    document.getElementById('fallbackText').value = cleanBody;
+    const subject = encodeURIComponent(`Тест кандидата: ${fio || ''} — Менеджер по продажам`);
+    const shortMailBody = encodeURIComponent('Результаты теста скопированы в буфер обмена. Вставьте их сюда (Ctrl+V) перед отправкой.');
+    document.getElementById('fallbackMailBtn').setAttribute('href', `mailto:kalash8585@mail.ru?subject=${subject}&body=${shortMailBody}`);
+    section.scrollIntoView({ behavior: 'smooth' });
+  }
 }
 
 function copyFallback() {
@@ -492,7 +513,43 @@ function copyFallback() {
   alert('Текст скопирован! Теперь нажмите "Открыть почту" и вставьте его (Ctrl+V).');
 }
 
-async function submitTest() {
+// Настоящая отправка формы (полный переход страницы), а не фоновый fetch-запрос.
+// Так надёжнее работает на мобильных прокси-браузерах (например, Яндекс.Браузер
+// с режимом Турбо) и при сбоях CDN перед formsubmit.co — обычная отправка формы
+// проходит там, где фоновый AJAX-запрос может тихо обрываться.
+function submitViaRealForm(body, fio) {
+  const { percent } = closedScoreAndPercent();
+  const category = categoryLabel(percent);
+  const nextUrl = window.location.origin + window.location.pathname + '?sent=1';
+
+  const f = document.createElement('form');
+  f.method = 'POST';
+  f.action = 'https://formsubmit.co/kalash8585@mail.ru';
+  f.style.display = 'none';
+
+  const fields = {
+    _subject: `[${category}, ${percent}%] Тест кандидата: ${fio} — Менеджер по продажам Kallen Home`,
+    _template: 'box',
+    _next: nextUrl,
+    _captcha: 'false',
+    'Кандидат_ФИО': val('fio'),
+    'Телефон': val('phone'),
+    'Email_кандидата': val('email'),
+    'Полный_отчёт': body
+  };
+  Object.keys(fields).forEach(key => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = fields[key];
+    f.appendChild(input);
+  });
+
+  document.body.appendChild(f);
+  f.submit();
+}
+
+function submitTest() {
   const missing = findMissing();
   if (missing.length) {
     alert('Пожалуйста, заполните все поля перед отправкой. Не заполнено:\n\n' + missing.join('\n'));
@@ -508,49 +565,23 @@ async function submitTest() {
 
   const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  showStatus('loading', '⏳ Отправляю результаты, подождите несколько секунд...');
+  showStatus('loading', '⏳ Отправляю результаты, сейчас страница ненадолго перезагрузится...');
 
-  const { body, cleanBody, fio: fioName } = buildReportText();
-  const { percent } = closedScoreAndPercent();
-  const category = categoryLabel(percent);
+  const { body, fio: fioName } = buildReportText();
+  submitViaRealForm(body, fioName);
+  // Дальше код не выполняется — страница переходит на formsubmit.co и
+  // возвращается обратно с ?sent=1, где её подхватывает checkSentState().
+}
 
-  const formData = new FormData();
-  formData.append('_subject', `[${category}, ${percent}%] Тест кандидата: ${fioName} — Менеджер по продажам Kallen Home`);
-  formData.append('_template', 'box');
-  formData.append('Кандидат_ФИО', val('fio'));
-  formData.append('Телефон', val('phone'));
-  formData.append('Email_кандидата', val('email'));
-  formData.append('Полный_отчёт', body);
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-  try {
-    const response = await fetch('https://formsubmit.co/ajax/kalash8585@mail.ru', {
-      method: 'POST',
-      headers: { 'Accept': 'application/json' },
-      body: formData,
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-
-    let data = null;
-    try { data = await response.json(); } catch (parseErr) { /* не JSON — считаем сбоем ниже */ }
-
-    if (response.ok && data && data.success === 'true') {
-      showStatus('success', '✅ <b>Результаты успешно отправлены!</b> Спасибо за прохождение теста. Мы свяжемся с вами в ближайшее время.');
-    } else {
-      throw new Error('Сервер не подтвердил отправку (статус ' + response.status + ')');
-    }
-  } catch (err) {
-    clearTimeout(timeoutId);
-    const reason = err.name === 'AbortError' ? 'превышено время ожидания (слабый интернет)' : err.message;
-    showStatus('error', `🔴 <b>Автоматическая отправка не удалась</b> (причина: ${reason}). Не переживайте — ваши ответы не потеряны, воспользуйтесь запасным способом ниже.`);
-    showFallback(cleanBody, fioName);
-  } finally {
-    btn.disabled = false;
+function checkSentState() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('sent') === '1') {
+    document.getElementById('testForm').style.display = 'none';
+    document.getElementById('thankYouPanel').style.display = 'block';
+    document.getElementById('thankYouPanel').scrollIntoView({ behavior: 'smooth' });
   }
 }
+checkSentState();
 </script>
 
 </body>
